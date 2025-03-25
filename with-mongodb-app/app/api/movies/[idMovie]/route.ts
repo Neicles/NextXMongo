@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { Db, MongoClient, ObjectId } from 'mongodb';
@@ -36,12 +35,11 @@ import { Db, MongoClient, ObjectId } from 'mongodb';
  *       500:
  *         description: Internal server error
  */
-export async function GET(request: Request, { params }: { params: { idMovie: string } }): Promise<NextResponse> {
+export async function GET(request: Request, { params }: { params: Promise<{ idMovie: string }> }): Promise<NextResponse> {
   try {
+    const { idMovie } = await params;
     const client: MongoClient = await clientPromise;
     const db: Db = client.db('sample_mflix');
-    
-    const { idMovie } = params;
     if (!ObjectId.isValid(idMovie)) {
       return NextResponse.json({ status: 400, message: 'Invalid movie ID', error: 'ID format is incorrect' });
     }
@@ -113,9 +111,9 @@ export async function POST(): Promise<NextResponse> {
  *       500:
  *         description: Internal Server Error
  */
-export async function PUT(request: Request, { params }: { params: { idMovie: string } }): Promise<NextResponse> {
+export async function PUT(request: Request, { params }: { params: Promise<{ idMovie: string }> }): Promise<NextResponse> {
     try {
-      const { idMovie } = params;
+      const { idMovie } = await params;
       if (!ObjectId.isValid(idMovie)) {
         return NextResponse.json({ status: 400, message: 'Invalid movie ID', error: 'ID format is incorrect' });
       }
@@ -163,9 +161,9 @@ export async function PUT(request: Request, { params }: { params: { idMovie: str
  *       500:
  *         description: Internal Server Error
  */
-export async function DELETE(request: Request, { params }: { params: { idMovie: string } }): Promise<NextResponse> {
+export async function DELETE(request: Request, { params }: { params: Promise<{ idMovie: string }> }): Promise<NextResponse> {
     try {
-      const { idMovie } = params;
+      const { idMovie } = await params;
       if (!ObjectId.isValid(idMovie)) {
         return NextResponse.json({ status: 400, message: 'Invalid movie ID', error: 'ID format is incorrect' });
       }

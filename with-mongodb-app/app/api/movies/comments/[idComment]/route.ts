@@ -4,47 +4,56 @@ import { Db, MongoClient, ObjectId } from 'mongodb';
 
 /**
  * @swagger
- * /api/movies/comments/{idComment}:
+ * /api/movies/{id}/comments:
  *   get:
  *     tags: [Comments]
- *     summary: Get a comment by ID
- *     description: Retrieve a specific comment based on its MongoDB ObjectId.
+ *     summary: Get comments for a specific movie
+ *     description: Returns comments related to the movie ID in the path.
  *     parameters:
  *       - in: path
- *         name: idComment
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the comment to retrieve.
+ *         description: MongoDB ObjectId of the movie
  *     responses:
  *       200:
- *         description: Comment retrieved successfully
+ *         description: Successfully fetched comments
  *       400:
- *         description: Invalid comment ID format
- *       404:
- *         description: Comment not found
+ *         description: Invalid movie ID format
  *       500:
  *         description: Internal Server Error
  */
-export async function GET(request: Request, { params }: { params: Promise<{ idComment: string }> }): Promise<NextResponse> {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
+    const { id } = params;
+
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({
+        status: 400,
+        message: 'Invalid movie ID',
+      });
+    }
+
     const client: MongoClient = await clientPromise;
     const db: Db = client.db('sample_mflix');
-    
-    const { idComment } = await params;
-    if (!ObjectId.isValid(idComment)) {
-      return NextResponse.json({ status: 400, message: 'Invalid movie ID', error: 'ID format is incorrect' });
-    }
-    
-    const comment = await db.collection('comments').findOne({ _id: new ObjectId(idComment) });
-    
-    if (!comment) {
-      return NextResponse.json({ status: 404, message: 'comment not found', error: 'No comment found with the given ID' });
-    }
-    
-    return NextResponse.json({ status: 200, data: { comment } });
+
+    const comments = await db
+      .collection('comments')
+      .find({ movie_id: id }) // ou new ObjectId(id) si movie_id est ObjectId
+      .limit(10)
+      .toArray();
+
+    return NextResponse.json({ status: 200, data: comments });
   } catch (error: any) {
-    return NextResponse.json({ status: 500, message: 'Internal Server Error', error: error.message });
+    return NextResponse.json({
+      status: 500,
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 }
 

@@ -6,9 +6,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.5.0",
     "next": "latest",
     "next-swagger-doc": "^0.3.0",
+    "npm": "^11.2.0",
     "react": "^18",
     "react-dom": "^18",
     "swagger-ui-react": "^4.1.0"

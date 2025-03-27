@@ -101,13 +101,21 @@ export async function POST(request: Request): Promise<NextResponse> {
       });
     }
 
+    if (!ObjectId.isValid(movie_id)) {
+      return NextResponse.json({
+        status: 400,
+        message: 'Invalid movie_id format',
+        error: 'movie_id must be a valid ObjectId',
+      });
+    }
+
     const client: MongoClient = await clientPromise;
     const db: Db = client.db('sample_mflix');
 
     const result = await db.collection('comments').insertOne({
       name,
       email,
-      movie_id,
+      movie_id: new ObjectId(movie_id), // <-- conversion ici
       text,
       date: new Date()
     });

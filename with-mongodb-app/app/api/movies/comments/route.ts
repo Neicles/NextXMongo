@@ -4,22 +4,48 @@ import clientPromise from '@/lib/mongodb';
 
 /**
  * @swagger
- * /api/movies/comments:
+ * /api/movies/{id}/comments:
  *   get:
  *     tags: [Comments]
- *     summary: Get all comments
- *     description: Returns a list of 10 comments from the database.
+ *     summary: Get comments for a specific movie
+ *     description: Returns comments related to the movie ID in the path.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB ObjectId of the movie
  *     responses:
  *       200:
  *         description: Successfully fetched comments
+ *       400:
+ *         description: Invalid movie ID format
  *       500:
  *         description: Internal Server Error
  */
-export async function GET(): Promise<NextResponse> {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
+    const { id } = params;
+
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({
+        status: 400,
+        message: 'Invalid movie ID',
+      });
+    }
+
     const client: MongoClient = await clientPromise;
     const db: Db = client.db('sample_mflix');
-    const comments = await db.collection('comments').find({}).limit(10).toArray();
+
+    const comments = await db
+      .collection('comments')
+      .find({ movie_id: id }) // ou new ObjectId(id) si movie_id est ObjectId
+      .limit(10)
+      .toArray();
 
     return NextResponse.json({ status: 200, data: comments });
   } catch (error: any) {

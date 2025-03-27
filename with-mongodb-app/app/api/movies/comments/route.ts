@@ -43,7 +43,7 @@ export async function GET(
 
     const comments = await db
       .collection('comments')
-      .find({ movie_id: id })
+      .find({ movie_id: id }) // ou { movie_id: new ObjectId(id) }
       .limit(10)
       .toArray();
 
@@ -109,7 +109,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!ObjectId.isValid(movie_id)) {
       return NextResponse.json({ status: 400, error: "Invalid movie_id" });
     }
-
+        
     const commentToInsert = {
       name,
       email,

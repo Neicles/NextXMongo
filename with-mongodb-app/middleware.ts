@@ -9,14 +9,13 @@ export async function middleware(request: NextRequest) {
 
   if (
     pathname.startsWith('/api/auth/login') ||
-    pathname.startsWith('/api/auth/register')||
+    pathname.startsWith('/api/auth/register') ||
     pathname.startsWith('/api-doc')
   ) {
     return NextResponse.next()
   }
 
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.split(' ')[1]
+  const token = request.cookies.get('token')?.value || request.headers.get('authorization')?.split(' ')[1]
 
   if (!token) {
     return NextResponse.json(
@@ -31,6 +30,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
+    console.error('❌ Invalid token:', error)
     return NextResponse.json(
       { status: 403, message: 'Invalid token' },
       { status: 403 }

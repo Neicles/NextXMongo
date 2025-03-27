@@ -115,7 +115,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const result = await db.collection('comments').insertOne({
       name,
       email,
-      movie_id: new ObjectId(movie_id), // <-- conversion ici
+      movie_id: ObjectId.createFromHexString(body.movie_id),
       text,
       date: new Date()
     });

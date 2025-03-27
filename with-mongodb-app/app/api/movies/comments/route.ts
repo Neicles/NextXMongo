@@ -92,34 +92,34 @@ export async function POST(request: Request): Promise<NextResponse> {
     const client: MongoClient = await clientPromise;
     const db: Db = client.db("sample_mflix");
     let body = await request.json();
+    const { name, email, movie_id, text, date } = body;
 
     if (
-      typeof body.name !== "string" ||
-      typeof body.email !== "string" ||
-      typeof body.movie_id !== "string" ||
-      typeof body.text !== "string"
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof movie_id !== "string" ||
+      typeof text !== "string"
     ) {
       return NextResponse.json({
         status: 400,
         error: "Missing or invalid required fields",
       });
     }
-
-    if (!ObjectId.isValid(body.movie_id)) {
+    
+    if (!ObjectId.isValid(movie_id)) {
       return NextResponse.json({ status: 400, error: "Invalid movie_id" });
     }
-    body.movie_id = ObjectId.createFromHexString(body.movie_id);
-
-    if (body.date) {
-      if (typeof body.date !== "string") {
-        return NextResponse.json({ status: 400, error: "Invalid date format" });
-      }
-      body.date = new Date(body.date);
-    } else {
-      body.date = new Date();
-    }
-
-    const result = await db.collection("comments").insertOne(body);
+        
+    const commentToInsert = {
+      name,
+      email,
+      movie_id: new ObjectId(movie_id),
+      text,
+      date: typeof date === "string" ? new Date(date) : new Date(),
+    };
+    
+    const result = await db.collection("comments").insertOne(commentToInsert);
+    
     return NextResponse.json({ status: 201, data: result });
   } catch (error: any) {
     return NextResponse.json({ status: 500, error: error.message });

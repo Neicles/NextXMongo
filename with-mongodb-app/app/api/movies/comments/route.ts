@@ -89,48 +89,40 @@ export async function GET(
  */
 export async function POST(request: Request): Promise<NextResponse> {
   try {
-    const body = await request.json();
-
-    const { name, email, movie_id, text } = body;
-
-    if (!name || !email || !movie_id || !text) {
-      return NextResponse.json({
-        status: 400,
-        message: 'Invalid request body',
-        error: 'Missing one or more required fields: name, email, movie_id, text',
-      });
-    }
-
-    if (!ObjectId.isValid(movie_id)) {
-      return NextResponse.json({
-        status: 400,
-        message: 'Invalid movie_id format',
-        error: 'movie_id must be a valid ObjectId',
-      });
-    }
-
     const client: MongoClient = await clientPromise;
-    const db: Db = client.db('sample_mflix');
+    const db: Db = client.db("sample_mflix");
+    let body = await request.json();
 
-    const result = await db.collection('comments').insertOne({
-      name,
-      email,
-      movie_id: ObjectId.createFromHexString(body.movie_id),
-      text,
-      date: new Date()
-    });
+    if (
+      typeof body.name !== "string" ||
+      typeof body.email !== "string" ||
+      typeof body.movie_id !== "string" ||
+      typeof body.text !== "string"
+    ) {
+      return NextResponse.json({
+        status: 400,
+        error: "Missing or invalid required fields",
+      });
+    }
 
-    return NextResponse.json({
-      status: 201,
-      message: 'Comment created successfully',
-      data: { insertedId: result.insertedId },
-    });
+    if (!ObjectId.isValid(body.movie_id)) {
+      return NextResponse.json({ status: 400, error: "Invalid movie_id" });
+    }
+    body.movie_id = ObjectId.createFromHexString(body.movie_id);
+
+    if (body.date) {
+      if (typeof body.date !== "string") {
+        return NextResponse.json({ status: 400, error: "Invalid date format" });
+      }
+      body.date = new Date(body.date);
+    } else {
+      body.date = new Date();
+    }
+
+    const result = await db.collection("comments").insertOne(body);
+    return NextResponse.json({ status: 201, data: result });
   } catch (error: any) {
-    return NextResponse.json({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message,
-    });
+    return NextResponse.json({ status: 500, error: error.message });
   }
 }
 

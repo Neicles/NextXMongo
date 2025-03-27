@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Db, MongoClient } from 'mongodb';
+import { Db, MongoClient, ObjectId } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
 
 /**
@@ -34,7 +34,7 @@ export async function GET(
     if (!ObjectId.isValid(id)) {
       return NextResponse.json({
         status: 400,
-        message: 'Invalid movie ID',
+        message: 'Invalid movie ID format',
       });
     }
 
@@ -43,7 +43,7 @@ export async function GET(
 
     const comments = await db
       .collection('comments')
-      .find({ movie_id: id }) // ou new ObjectId(id) si movie_id est ObjectId
+      .find({ movie_id: id }) // ou { movie_id: new ObjectId(id) }
       .limit(10)
       .toArray();
 

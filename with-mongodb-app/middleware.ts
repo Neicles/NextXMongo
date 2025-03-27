@@ -9,7 +9,8 @@ export async function middleware(request: NextRequest) {
 
   if (
     pathname.startsWith('/api/auth/login') ||
-    pathname.startsWith('/api/auth/register')
+    pathname.startsWith('/api/auth/register')||
+    pathname.startsWith('/api-doc')
   ) {
     return NextResponse.next()
   }
@@ -42,6 +43,5 @@ export const config = {
     '/api/movies/:path*',
     '/api/movies/comments/:path*',
     '/api/movies/theaters/:path*'
-  ],
-  runtime: 'edge',
+  ]
 }

@@ -36,18 +36,51 @@ export async function GET(): Promise<NextResponse> {
  * /api/movies:
  *   post:
  *     tags: [Movies]
- *     summary: Method not allowed
- *     description: POST method is not supported on this route.
+ *     summary: Create a new movie
+ *     description: Adds a new movie document to the database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
  *     responses:
- *       405:
- *         description: Method Not Allowed
+ *       201:
+ *         description: Movie created successfully
+ *       400:
+ *         description: Invalid request body
+ *       500:
+ *         description: Internal Server Error
  */
-export async function POST(): Promise<NextResponse> {
-  return NextResponse.json({
-    status: 405,
-    message: 'Method Not Allowed',
-    error: 'POST method is not supported',
-  });
+export async function POST(request: Request): Promise<NextResponse> {
+  try {
+    const body = await request.json();
+
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({
+        status: 400,
+        message: 'Invalid request body',
+        error: 'Body must be a valid JSON object',
+      });
+    }
+
+    const client: MongoClient = await clientPromise;
+    const db: Db = client.db('sample_mflix');
+
+    const result = await db.collection('movies').insertOne(body);
+
+    return NextResponse.json({
+      status: 201,
+      message: 'Movie created successfully',
+      data: { insertedId: result.insertedId },
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      status: 500,
+      message: 'Internal Server Error',
+      error: error.message,
+    });
+  }
 }
 
 /**

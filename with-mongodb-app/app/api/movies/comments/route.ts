@@ -26,33 +26,32 @@ import clientPromise from '@/lib/mongodb';
  */
 export async function GET(request: Request): Promise<NextResponse> {
   try {
-    const url = new URL(request.url)
-    const pathParts = url.pathname.split('/')
-    const movieId = pathParts[pathParts.length - 2] // ← /movies/:id/comments
+    const { searchParams } = new URL(request.url);
+    const movieId = searchParams.get("id");
 
-    if (!ObjectId.isValid(movieId)) {
+    if (!movieId || !ObjectId.isValid(movieId)) {
       return NextResponse.json({
         status: 400,
-        message: 'Invalid movie ID format',
-      })
+        message: 'Invalid or missing movie ID',
+      });
     }
 
-    const client: MongoClient = await clientPromise
-    const db: Db = client.db('sample_mflix')
+    const client: MongoClient = await clientPromise;
+    const db: Db = client.db('sample_mflix');
 
     const comments = await db
       .collection('comments')
       .find({ movie_id: new ObjectId(movieId) })
       .limit(10)
-      .toArray()
+      .toArray();
 
-    return NextResponse.json({ status: 200, data: comments })
+    return NextResponse.json({ status: 200, data: comments });
   } catch (error: any) {
     return NextResponse.json({
       status: 500,
       message: 'Internal Server Error',
       error: error.message,
-    })
+    });
   }
 }
 

@@ -1,83 +1,125 @@
-## Example app using MongoDB
+# 🎬 Next.js MongoDB Movie API
 
-[MongoDB](https://www.mongodb.com/) is a general purpose, document-based, distributed database built for modern application developers and for the cloud era. This example will show you how to connect to and use MongoDB as your backend for your Next.js app.
+Un projet **Next.js App Router** avec une API REST connectée à **MongoDB**, permettant de gérer et consulter des films, commentaires et cinémas. Déployé automatiquement sur **Vercel**.
 
-If you want to learn more about MongoDB, visit the following pages:
+---
 
-- [MongoDB Atlas](https://mongodb.com/atlas)
-- [MongoDB Documentation](https://docs.mongodb.com/)
+## 🚀 Technologies utilisées
 
-## Deploy your own
+- [Next.js 13+](https://nextjs.org/docs) (App Router)
+- [MongoDB Atlas](https://www.mongodb.com/atlas)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vercel](https://vercel.com/) (déploiement)
+- [Swagger](https://swagger.io/) pour la documentation API
 
-Once you have access to the environment variables you'll need, deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-mongodb)
+---
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+## 📁 Structure du projet
 
-## How to use
+```
+/app/api/movies/               → Routes REST pour les films
+  ├── [idMovie]/route.ts       → GET / PUT / DELETE par ID
+  └── route.ts                 → GET (liste des films)
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+              /comments/       
+  ├── [idComment]/route.ts     → GET / PUT / DELETE par ID
+  └── route.ts                 → GET (liste des commentaires)
 
-```bash
-npx create-next-app --example with-mongodb with-mongodb-app
+              /theaters/
+  ├── [idTheater]/route.ts     → GET / PUT / DELETE par ID
+  └── route.ts                 → GET (liste des cinémas)
+
+/lib/mongodb.ts                → Connexion MongoDB réutilisable
+/public/swagger.json           → Documentation Swagger (si générée)
 ```
 
-```bash
-yarn create next-app --example with-mongodb with-mongodb-app
+---
+
+## 🧪 Exemples d'appels API
+
+### ✅ Get un film par ID
+
+```http
+GET /api/movies/573a1390f29313caabcd4135
 ```
 
-```bash
-pnpm create next-app --example with-mongodb with-mongodb-app
+### ✅ Get un commentaire par ID
+
+```http
+GET /api/movies/comments/5a9427648b0beebeb6957a88
 ```
 
-## Configuration
+### ✅ Get un cinéma par ID
 
-### Set up a MongoDB database
-
-Set up a MongoDB database either locally or with [MongoDB Atlas for free](https://mongodb.com/atlas).
-
-### Set up environment variables
-
-Copy the `env.local.example` file in this directory to `.env.local` (which will be ignored by Git):
-
-```bash
-cp .env.local.example .env.local
+```http
+GET /api/movies/theaters/59a47286cfa9a3a73e51e72d
 ```
 
-Set each variable on `.env.local`:
+---
 
-- `MONGODB_URI` - Your MongoDB connection string. If you are using [MongoDB Atlas](https://mongodb.com/atlas) you can find this by clicking the "Connect" button for your cluster.
-
-### Run Next.js in development mode
+## 📦 Installation
 
 ```bash
+git clone https://github.com/ton-user/ton-projet.git
+cd ton-projet
 npm install
-npm run dev
-# or
-yarn install
-yarn dev
-# or
-pnpm install
-pnpm dev
 ```
 
-Your app should be up and running on [http://localhost:3000](http://localhost:3000)! If it doesn't work, post on [GitHub discussions](https://github.com/vercel/next.js/discussions).
+---
 
-You will either see a message stating "You are connected to MongoDB" or "You are NOT connected to MongoDB". Ensure that you have provided the correct `MONGODB_URI` environment variable.
+## ⚙️ Configuration environnement
 
-When you are successfully connected, you can refer to the [MongoDB Node.js Driver docs](https://mongodb.github.io/node-mongodb-native/3.4/tutorials/collections/) for further instructions on how to query your database.
+Créer un fichier `.env.local` à la racine :
 
-## Deploy on Vercel
+```ini
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
+```
 
-You can deploy this app to the cloud with [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+---
 
-#### Deploy Your Local Project
+## 🧑‍💻 Lancer en local
 
-To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [import to Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example).
+```bash
+npm run dev
+```
 
-**Important**: When you import your project on Vercel, make sure to click on **Environment Variables** and set them to match your `.env.local` file.
+---
 
-#### Deploy from Our Template
+## 📄 Swagger (documentation API)
 
-Alternatively, you can deploy using our template by clicking on the Deploy button below.
+Installer la dépendance :
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+```bash
+npm install swagger-ui-react
+```
+
+Tu peux ensuite créer une page `/docs` avec ce composant :
+
+```tsx
+import SwaggerUI from 'swagger-ui-react'
+import 'swagger-ui-react/swagger-ui.css'
+
+export default function Docs() {
+  return <SwaggerUI url="/swagger.json" />
+}
+```
+
+---
+
+## 🌐 Déploiement Vercel
+
+Le projet est compatible avec Vercel :
+
+- `next build` est automatiquement détecté
+- Aucune configuration spéciale requise
+- **Ne pas utiliser `next export`**
+
+🛑 **Important** : ne pas utiliser `next export`, cela désactive les routes API dynamiques.
+
+---
+
+## 📌 Remarques
+
+- Les routes dynamiques (`[idMovie]`, `[idComment]`, `[idTheater]`) sont correctement typées avec `context.params`
+- Le projet utilise un `clientPromise` MongoDB pour éviter les connexions multiples
+- Documentation Swagger en JSON disponible dans `/public/swagger.json`
